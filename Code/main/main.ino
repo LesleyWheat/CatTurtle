@@ -2,16 +2,20 @@
   
 */
 
+#include "realTimer.cpp"
+
 int batteryVoltage = 0;
 double cycleStartTime = 0;
 double cycleEndTime = 0;
 double cycleTime = 0;
 
-String inputString = "";         // a String to hold incoming data
-bool stringComplete = false;  // whether the string is complete
+
+//Objeccts
+realTimer timer1;
 
 //settings variables
 int const debugPrioritySettiing = 5;
+
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -26,6 +30,8 @@ void setup() {
   }
   
   establishContact();  // send a byte to establish contact until receiver responds
+
+  timer1.init(10000);
   
   debugPrint("setup", 5, "Startup complete");
 }
