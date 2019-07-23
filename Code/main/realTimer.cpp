@@ -32,6 +32,8 @@ class realTimer{
       }
 
       if(accum > targetTime){
+        accum = 0;
+        lastCheck= millis();
         return true;
       }else{
         return false;

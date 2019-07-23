@@ -3,18 +3,18 @@
 */
 
 #include "realTimer.cpp"
+#include "diagnoticsRoutine.cpp"
 
 int batteryVoltage = 0;
-double cycleStartTime = 0;
-double cycleEndTime = 0;
-double cycleTime = 0;
 
 
-//Objeccts
+//Objects
 realTimer timer1;
+diagnoticsRoutine diagnotics;
+realTimer memStats;
 
 //settings variables
-int const debugPrioritySettiing = 5;
+int const debugPrioritySetting = 5;
 
 
 // the setup function runs once when you press reset or power the board
@@ -32,6 +32,8 @@ void setup() {
   establishContact();  // send a byte to establish contact until receiver responds
 
   timer1.init(10000);
+  memStats.init(20000);
+  diagnotics.init(debugPrioritySetting);
   
   debugPrint("setup", 5, "Startup complete");
 }
@@ -41,7 +43,6 @@ void loop() {
   //local variables
 
   //Cycle startup
-  cycleStartTime = millis();
 
   //Main sequence
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -49,14 +50,17 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
 
-  debugPrint("Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+
+  if(timer1.check(true)){
+    debugPrint("Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+  }
+
+  if(memStats.check(true)){
+    diagnotics.printMemStats();
+  }
   
   //Cycle finish
-  cycleEndTime = millis();
-
-  cycleTime = cycleEndTime - cycleStartTime;
-
-  debugPrint(String("Main"), 5, String("Cycletime: ") + String(cycleTime));
+  diagnotics.cycleStats();
   
 }
 
@@ -86,9 +90,5 @@ void output(){
 }
 
 void comm(){
-  
-}
-
-void diagnostics(){
   
 }
