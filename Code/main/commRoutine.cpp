@@ -2,11 +2,19 @@
 
 #include "arduino.h"
 #include "realTimer.h"
+#include "loggingFunctions.h"
 
 class commRoutine{
   private:
+    int debugPrioritySetting;
     realTimer timer1;
 
+    void establishContact() {
+      while (Serial.available() <= 0) {
+        Serial.print('A');   // send a capital A
+        delay(300);
+      }
+    }
     double fuzzyNum(double num, double sigma){
       double
         sample,
@@ -44,13 +52,28 @@ class commRoutine{
 
   public:
 
-  void init(){
+  void init(int debugPrioritySetting){
+    //set variables
+    this->debugPrioritySetting=debugPrioritySetting;
+
+    //Starting variables
+
+    
+    //create objects
     timer1.init(10000);
+
+    // start serial port at 9600 bps:
+    Serial.begin(9600);
+    while (!Serial) {
+      ; // wait for serial port to connect. Needed for native USB port only
+    }
+    
+    establishContact();  // send a byte to establish contact until receiver responds
   };
 
   void run(){
     if(timer1.check(true)){
-      //debugPrint("Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+      debugPrint(5, "Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
       Serial.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
     }
   };

@@ -1,25 +1,6 @@
 //Start of file
 
-//some discription
-void debugPrint(String routine, int priority, String info){
-  String message = " ";
-  
-  if (Serial.available() > 0) {
-    if(debugPrioritySetting >= priority){
-      message = String("debugPrint - ") + String(priority) + " - " + String(routine) + " - " + String(info);
-      Serial.println(message);
-    }
-  }
-}
-
-void establishContact() {
-  while (Serial.available() <= 0) {
-    Serial.print('A');   // send a capital A
-    delay(300);
-  }
-}
-
-
+#include "arduino.h"
 /* generate a pair of normally distributed random numbers
 * using a Box-Muller transformation. The mean is 0 -- numbers
 * are equally likely to be + or -.  The required stdev is

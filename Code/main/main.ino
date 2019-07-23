@@ -3,40 +3,38 @@
 */
 
 //
-//#include "realTimer.cpp"
+#include "loggingFunctions.h"
 
+//Main routine files
+#include "controlRoutine.cpp"
 #include "commRoutine.cpp"
 #include "diagnoticsRoutine.cpp"
 
-int batteryVoltage = 0;
 
-
-//Objects
+//Declare Objects
+controlRoutine control;
 commRoutine comm;
 diagnoticsRoutine diagnotics;
 
-//settings variables
+//global variables
+int batteryVoltage = 0;
+
+//gloabl settings variables
 int const debugPrioritySetting = 5;
 
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-  debugPrint("setup", 5, "Starting...");
+  debugPrint(debugPrioritySetting, "setup", 5, "Starting...");
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
-
-  // start serial port at 9600 bps:
-  Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
   
-  establishContact();  // send a byte to establish contact until receiver responds
-
-  comm.init();
+  //Initalize main routines
+  control.init(debugPrioritySetting);
+  comm.init(debugPrioritySetting);
   diagnotics.init(debugPrioritySetting);
   
-  debugPrint("setup", 5, "Startup complete");
+  debugPrint(debugPrioritySetting, "setup", 5, "Startup complete");
 }
 
 // the loop function runs over and over again forever
@@ -51,8 +49,9 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
 
+  //Run main routines
+  control.run();
   comm.run();
-  
   diagnotics.run();
 }
 
@@ -62,10 +61,6 @@ void inputs(){
   
   //Read inputs
   batteryVoltage = analogRead(BatterySensorPin);
-  
-}
-
-void control(){
   
 }
 

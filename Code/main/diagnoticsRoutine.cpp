@@ -3,7 +3,7 @@
 #include "arduino.h"
 #include <MemoryUsage.h>
 #include "realTimer.h"
-
+#include "loggingFunctions.h"
 
 class diagnoticsRoutine{
   private:
@@ -46,10 +46,15 @@ class diagnoticsRoutine{
   public:
 
   void init(int debugPrioritySetting){
+    //Set local variables
+    this->debugPrioritySetting=debugPrioritySetting;
+
+    //Set starting variables
     cycleStartTime = 0;
     cycleEndTime = 0;
     cycleTime = 0;
-    this->debugPrioritySetting=debugPrioritySetting;
+    
+    //Create objects
     memStats.init(20000);
   };
 
