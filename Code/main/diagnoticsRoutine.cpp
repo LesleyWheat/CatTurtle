@@ -2,6 +2,8 @@
 
 #include "arduino.h"
 #include <MemoryUsage.h>
+#include "realTimer.h"
+
 
 class diagnoticsRoutine{
   private:
@@ -9,37 +11,25 @@ class diagnoticsRoutine{
     double cycleEndTime;
     double cycleTime;
     int debugPrioritySetting;
-    
-  void memoryState(){
-    Serial.println(F("Current state of the memory:"));
-    Serial.println();
-    
-    MEMORY_PRINT_START
-    MEMORY_PRINT_HEAPSTART
-    MEMORY_PRINT_HEAPEND
-    MEMORY_PRINT_STACKSTART
-    MEMORY_PRINT_END
-    MEMORY_PRINT_HEAPSIZE
-    FREERAM_PRINT;
+    realTimer memStats;
 
-    Serial.println();
-    Serial.println();
-  }
+   void printMemStats(){
+    if ((Serial.available() > 0) & ( debugPrioritySetting >= 5)){
+      Serial.println(F("Current state of the memory:"));
+      Serial.println();
+      
+      MEMORY_PRINT_START
+      MEMORY_PRINT_HEAPSTART
+      MEMORY_PRINT_HEAPEND
+      MEMORY_PRINT_STACKSTART
+      MEMORY_PRINT_END
+      MEMORY_PRINT_HEAPSIZE
+      FREERAM_PRINT;
   
-  public:
-
-  init(int debugPrioritySetting){
-    cycleStartTime = 0;
-    cycleEndTime = 0;
-    cycleTime = 0;
-    this->debugPrioritySetting=debugPrioritySetting;
-  };
-
-  void printMemStats(){
-  if ((Serial.available() > 0) & ( debugPrioritySetting >= 5)){
-      memoryState();
-    }
-  };
+      Serial.println();
+      Serial.println();
+      }
+    };
 
 
   
@@ -52,5 +42,23 @@ class diagnoticsRoutine{
       Serial.println(cycleTime);
     }
     cycleStartTime = cycleEndTime;
-  }
+  };
+  public:
+
+  void init(int debugPrioritySetting){
+    cycleStartTime = 0;
+    cycleEndTime = 0;
+    cycleTime = 0;
+    this->debugPrioritySetting=debugPrioritySetting;
+    memStats.init(20000);
+  };
+
+  void run(){
+    if(memStats.check(true)){
+      printMemStats();
+    };
+  
+    //Cycle finish
+    cycleStats();
+  };
 };

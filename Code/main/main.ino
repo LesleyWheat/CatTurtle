@@ -2,16 +2,18 @@
   
 */
 
-#include "realTimer.cpp"
+//
+//#include "realTimer.cpp"
+
+#include "commRoutine.cpp"
 #include "diagnoticsRoutine.cpp"
 
 int batteryVoltage = 0;
 
 
 //Objects
-realTimer timer1;
+commRoutine comm;
 diagnoticsRoutine diagnotics;
-realTimer memStats;
 
 //settings variables
 int const debugPrioritySetting = 5;
@@ -31,8 +33,7 @@ void setup() {
   
   establishContact();  // send a byte to establish contact until receiver responds
 
-  timer1.init(10000);
-  memStats.init(20000);
+  comm.init();
   diagnotics.init(debugPrioritySetting);
   
   debugPrint("setup", 5, "Startup complete");
@@ -50,18 +51,9 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
 
-
-  if(timer1.check(true)){
-    debugPrint("Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
-  }
-
-  if(memStats.check(true)){
-    diagnotics.printMemStats();
-  }
+  comm.run();
   
-  //Cycle finish
-  diagnotics.cycleStats();
-  
+  diagnotics.run();
 }
 
 void inputs(){
@@ -87,8 +79,4 @@ void output(){
 
   //Set outputs
 
-}
-
-void comm(){
-  
 }
