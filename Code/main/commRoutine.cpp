@@ -7,7 +7,8 @@
 class commRoutine{
   private:
     int debugPrioritySetting;
-    realTimer timer1;
+    realTimer test;
+    String routineName = "Comm";
 
     void establishContact() {
       while (Serial.available() <= 0) {
@@ -61,7 +62,7 @@ class commRoutine{
 
     
     //create objects
-    timer1.init(5000);
+    test.init(5000);
 
     // start serial port at 9600 bps:
     Serial.begin(9600);
@@ -73,8 +74,8 @@ class commRoutine{
   };
 
   void run(){
-    if(timer1.check(true)){
-      debugPrint(5, "Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+    if(test.check(true)){
+      debugPrint(5, routineName, 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
       //Serial.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
     }
   };

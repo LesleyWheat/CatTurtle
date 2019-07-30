@@ -66,10 +66,10 @@ void loop() {
   control.run(batteryVoltage);
   comm.run();
   diagnotics.run(batteryVoltage);
+  outputWrite();
 }
 
-void inputsRead(){
-  
+void inputsRead(){  
   //Read inputs
   batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
   
@@ -83,7 +83,7 @@ void outputSetup(){
 }
 
 
-void outputRun(){
+void outputWrite(){
   //list pins
   //Motor Pins
 

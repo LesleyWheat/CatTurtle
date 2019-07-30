@@ -7,6 +7,7 @@ class controlRoutine{
   private:
     int debugPrioritySetting;
     float batteryVoltage;
+    String routineName = "Control";
     
   public:
 
