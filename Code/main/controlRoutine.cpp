@@ -6,6 +6,7 @@
 class controlRoutine{
   private:
     int debugPrioritySetting;
+    float batteryVoltage;
     
   public:
 
@@ -19,7 +20,9 @@ class controlRoutine{
     
   };
 
-  void run(){
+  void run(float batteryVoltage){
+    //Read inputs
+    this->batteryVoltage=batteryVoltage;
     
   };
 };

@@ -16,8 +16,18 @@ controlRoutine control;
 commRoutine comm;
 diagnoticsRoutine diagnotics;
 
+
+//Set input pins
+int BatterySensorPin = A0;
+
+//Set output pins
+byte motorOptionPin1 = 7;
+byte motorOptionPin2 = 8;
+byte motorPWMA = 3;
+byte motorPWMB = 11;
+
 //global variables
-int batteryVoltage = 0;
+float batteryVoltage = 0;
 
 //gloabl settings variables
 int const debugPrioritySetting = 5;
@@ -33,6 +43,7 @@ void setup() {
   control.init(debugPrioritySetting);
   comm.init(debugPrioritySetting);
   diagnotics.init(debugPrioritySetting);
+  outputSetup();
   
   debugPrint(debugPrioritySetting, "setup", 5, "Startup complete");
 }
@@ -45,32 +56,37 @@ void loop() {
 
   //Main sequence
   digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);                       // wait for a second
+  delay(500);                       // wait for a second
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000);                       // wait for a second
+  delay(500);                       // wait for a second
 
+  
   //Run main routines
-  control.run();
+  inputsRead();
+  control.run(batteryVoltage);
   comm.run();
-  diagnotics.run();
+  diagnotics.run(batteryVoltage);
 }
 
-void inputs(){
-  //list pins
-  int BatterySensorPin = A0;
+void inputsRead(){
   
   //Read inputs
-  batteryVoltage = analogRead(BatterySensorPin);
+  batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
   
 }
 
-void output(){
+void outputSetup(){
+  pinMode(motorOptionPin1, OUTPUT);
+  pinMode(motorOptionPin2, OUTPUT);
+  pinMode(motorPWMA, OUTPUT);
+  pinMode(motorPWMB, OUTPUT);
+}
+
+
+void outputRun(){
   //list pins
   //Motor Pins
-  byte motorInputPin1 = 7;
-  byte motorInputPin2 = 8;
-  byte motorPWMA = 13;
-  byte motorPWMB = 11;
+
 
   //Set outputs
 

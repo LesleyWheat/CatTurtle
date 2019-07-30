@@ -14,6 +14,7 @@ class commRoutine{
         Serial.print('A');   // send a capital A
         delay(300);
       }
+      Serial.println(' ');
     }
     double fuzzyNum(double num, double sigma){
       double
@@ -60,7 +61,7 @@ class commRoutine{
 
     
     //create objects
-    timer1.init(10000);
+    timer1.init(5000);
 
     // start serial port at 9600 bps:
     Serial.begin(9600);
@@ -74,7 +75,7 @@ class commRoutine{
   void run(){
     if(timer1.check(true)){
       debugPrint(5, "Main", 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
-      Serial.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+      //Serial.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
     }
   };
 };
