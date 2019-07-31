@@ -2,8 +2,9 @@
   
 */
 
-//
+//functions
 #include "loggingFunctions.h"
+#include "realTimer.h"
 
 //Main routine files
 #include "controlRoutine.cpp"
@@ -28,16 +29,20 @@ byte motorPWMB = 11;
 
 //global variables
 float batteryVoltage = 0;
+byte blinkState = 0;
 
 //gloabl settings variables
 int const debugPrioritySetting = 5;
 
+//global objects
+realTimer blinkTimer;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
   debugPrint(debugPrioritySetting, "setup", 5, "Starting...");
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  blinkTimer.init(1000);
   
   //Initalize main routines
   control.init(debugPrioritySetting);
@@ -51,15 +56,24 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
   //local variables
+  String routineName = "main";
 
   //Cycle startup
 
   //Main sequence
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(500);                       // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(500);                       // wait for a second
+    if(blinkState == 0){
+      digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    }else{
+      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    }
+    
+    if(blinkTimer.check(true)){
+        //Next state
+        blinkState = ((blinkState + 1)%2);
+        //debugPrint(5, routineName, 5, String("BlinkState: ") + String(blinkState));
+    };
 
+  delay(50);                       // wait for a second
   
   //Run main routines
   inputsRead();

@@ -9,7 +9,7 @@
 
 class diagnoticsRoutine{
   private:
-    String routineName = "Diagnostics";
+    String routineName = "Diag";
     double cycleStartTime;
     double cycleEndTime;
     double cycleTime;
@@ -19,7 +19,7 @@ class diagnoticsRoutine{
     float batteryVoltage;
     int cycleCount = 0;
 
-    byte logSize = 20;
+    byte logSize = 200;
     
     double cycleTimeSum;
     float batteryVoltageSum;
