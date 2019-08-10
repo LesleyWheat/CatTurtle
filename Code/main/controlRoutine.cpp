@@ -75,6 +75,9 @@ class controlRoutine{
           //debugPrint(5, routineName, 5, String("Right speed running at: ") + String(right_currentPWM));
         };
       };
+
+      motorOptionPin1_PWM = (left_currentPWM*(255/100));
+      motorOptionPin2_PWM = (right_currentPWM*(255/100));
     };
     
     void testStateMachine(){
@@ -86,27 +89,27 @@ class controlRoutine{
         //Set motor settings
         switch(testState){
           case 0:
-            setMotor(0, 0, 0);
+            setMotor(SPEED_BRAKE, STRAIGHT, ACCEL_MIN);
             break;
           case 1:
-            setMotor(30, 50, 10);
+            setMotor(SPEED_VERY_SLOW, STRAIGHT, ACCEL_MIN);
             break;
           case 2:
-            setMotor(30, 60, 4);
+            setMotor(SPEED_SLOW, STRAIGHT, ACCEL_SLOW);
             break;
           case 3:
-            setMotor(30, 40, 5);
+            setMotor(SPEED_NORMAL, STRAIGHT, ACCEL_NORMAL);
             break;
           case 4:
-            setMotor(20, 70, 7);
+            setMotor(SPEED_VERY_SLOW, STRAIGHT, ACCEL_MIN);
             break;
           default:
-            setMotor(0, 0, 0);
+            setMotor(SPEED_BRAKE, STRAIGHT, ACCEL_MIN);
         };
         
         debugPrint(5, routineName, 5, String("Test state: ") + String(testState));
-        debugPrint(5, routineName, 5, String("Left speed running at: ") + String(left_currentPWM));
-        debugPrint(5, routineName, 5, String("Right speed running at: ") + String(right_currentPWM));
+        debugPrint(5, routineName, 5, String("Left speed running at: ") + String(motorOptionPin1_PWM));
+        debugPrint(5, routineName, 5, String("Right speed running at: ") + String(motorOptionPin2_PWM));
         debugPrint(5, routineName, 5, String("Left set at running at: ") + String(left_setPWM));
         debugPrint(5, routineName, 5, String("Right set at running at: ") + String(right_setPWM));
       };
@@ -114,8 +117,8 @@ class controlRoutine{
 
     
   public:
-    int motorOptionPin1_PWM = 0;
-    int motorOptionPin2_PWM = 0;
+    byte motorOptionPin1_PWM = 0;
+    byte motorOptionPin2_PWM = 0;
     
     void init(int debugPrioritySetting){
       //Set local variables
