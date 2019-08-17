@@ -98,14 +98,15 @@ void outputSetup(){
 
 
 void outputWrite(){
+  
+  //Set outputs
+  //Motor state
   analogWrite(motorOptionPin1,255);
   analogWrite(motorOptionPin2,0);
   
-  //Get outputs
+  //Motor PWM
   analogWrite(motorPWMA,control.motorOptionPin1_PWM);
   analogWrite(motorPWMB,control.motorOptionPin2_PWM);
 
-
-  //Set outputs
   
 }
