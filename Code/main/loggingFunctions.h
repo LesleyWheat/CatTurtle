@@ -1,4 +1,4 @@
-//better description
+//Header for global functions for logging
 
 #ifndef LOGGING_FUNC_H
 #define LOGGING_FUNC_H

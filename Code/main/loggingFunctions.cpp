@@ -1,4 +1,4 @@
-//better description
+//Used to format output messages in the console
 
 #include "arduino.h"
 #include "loggingFunctions.h"

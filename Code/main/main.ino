@@ -2,11 +2,11 @@
   
 */
 
-//functions
+//Include functions
 #include "loggingFunctions.h"
 #include "realTimer.h"
 
-//Main routine files
+//Include main routines as objects
 #include "controlRoutine.cpp"
 #include "commRoutine.cpp"
 #include "diagnoticsRoutine.cpp"
@@ -27,17 +27,18 @@ byte motorOptionPin2 = 8;
 byte motorPWMA = 10;
 byte motorPWMB = 11;
 
-//global variables
+//global variables for main
 float batteryVoltage = 0;
 byte blinkState = 0;
 
 //gloabl settings variables
 int const debugPrioritySetting = 5;
 
-//global objects
+//global objects for main
 realTimer blinkTimer;
 
 // the setup function runs once when you press reset or power the board
+//Runs only once at setup
 void setup() {
   debugPrint(debugPrioritySetting, "setup", 5, "Starting...");
   // initialize digital pin LED_BUILTIN as an output.
@@ -49,7 +50,8 @@ void setup() {
   comm.init(debugPrioritySetting);
   diagnotics.init(debugPrioritySetting);
   outputSetup();
-  
+
+  //Finish setup
   debugPrint(debugPrioritySetting, "setup", 5, "Startup complete");
 }
 
@@ -61,19 +63,22 @@ void loop() {
   //Cycle startup
 
   //Main sequence
-    if(blinkState == 0){
-      digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    }else{
-      digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    }
-    
-    if(blinkTimer.check(true)){
-        //Next state
-        blinkState = ((blinkState + 1)%2);
-        //debugPrint(5, routineName, 5, String("BlinkState: ") + String(blinkState));
-    };
 
-  delay(50);                       // wait for a second
+  //Change led state to show board is running
+  if(blinkState == 0){
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  }else{
+    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+  }
+  
+  if(blinkTimer.check(true)){
+      //Next state
+      blinkState = ((blinkState + 1)%2);
+      //debugPrint(5, routineName, 5, String("BlinkState: ") + String(blinkState));
+  };
+
+  // Delay so CPU doesn't run at 100% all the time
+  delay(50);
   
   //Run main routines
   inputsRead();
@@ -84,12 +89,13 @@ void loop() {
 }
 
 void inputsRead(){  
-  //Read inputs
+  //Read inputs and translate into readable format
   batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
   
 }
 
 void outputSetup(){
+  //Setup output pins
   pinMode(motorOptionPin1, OUTPUT);
   pinMode(motorOptionPin2, OUTPUT);
   pinMode(motorPWMA, OUTPUT);

@@ -1,4 +1,4 @@
-//Start of file
+//General global functions
 
 #include "arduino.h"
 /* generate a pair of normally distributed random numbers

@@ -1,4 +1,4 @@
-//better description
+//Control/AI module
 
 #include "arduino.h"
 #include "realTimer.h"
@@ -6,10 +6,12 @@
 
 class controlRoutine{
   private:
+    //Set private variables
     int debugPrioritySetting;
     float batteryVoltage;
     String routineName = "cont";
 
+    //Set variables for motor
     realTimer timerRampUp;
     byte left_setPWM;
     byte right_setPWM;
@@ -18,12 +20,13 @@ class controlRoutine{
     byte testState = 0;
     realTimer timerTest;
 
-    
+    //Test state machine
     enum state{
       STANDBY = 0,
       TEST = 1
     }; 
 
+    //Plain text settings for speed - needs calibration
     enum speed{
       SPEED_BRAKE = 0,
       SPEED_VERY_SLOW = 10,
@@ -33,6 +36,7 @@ class controlRoutine{
       SPEED_MAX = 100
     };
 
+    //Plain text settings for direction - needs calibration
     enum direction{
       LEFT_MAX = 0,
       LEFT_HARD = 10,
@@ -43,6 +47,7 @@ class controlRoutine{
       RIGHT_MAX = 100
     };
 
+    //Plain text settings for acceleration - needs calibration
     enum acceleration{
       ACCEL_MIN = 60,
       ACCEL_SLOW = 30,
@@ -51,8 +56,9 @@ class controlRoutine{
       ACCEL_MAX = 2
     };
 
+    //Set target motor values
     void setMotor(byte spd, byte dir, int accelTime){
-      //adebugPrint(5, routineName, 5, String("Motor set to: ") + String(spd));
+      //debugPrint(5, routineName, 5, String("Motor set to: ") + String(spd));
       //Accel sets timer change rate
       int timerRate = (100/3.0*accelTime);
       timerRampUp.init(timerRate);
@@ -62,7 +68,8 @@ class controlRoutine{
       left_setPWM = (spd + (50-dir)*spd/50);
       right_setPWM = (spd + (50-(100-dir))*spd/50);
     };
-    
+
+    //Run motor controller to gradually reach target
     void runMotor(){
       if(timerRampUp.check(true)){
         left_currentPWM = left_currentPWM + (left_setPWM - left_currentPWM)/10 ;
@@ -79,7 +86,8 @@ class controlRoutine{
       motorOptionPin1_PWM = (left_currentPWM*(255/100));
       motorOptionPin2_PWM = (right_currentPWM*(255/100));
     };
-    
+
+    //Set up tests to cycle through modes
     void testStateMachine(){
       //
       if(timerTest.check(true)){
@@ -117,8 +125,10 @@ class controlRoutine{
 
     
   public:
+    //set public variables
     byte motorOptionPin1_PWM = 0;
     byte motorOptionPin2_PWM = 0;
+
     
     void init(int debugPrioritySetting){
       //Set local variables
@@ -130,7 +140,8 @@ class controlRoutine{
       timerTest.init(20000);
       
     };
-  
+
+    //Runs in main loop
     void run(float batteryVoltage){
       //Read inputs
       this->batteryVoltage=batteryVoltage;
