@@ -13,11 +13,11 @@ class commRoutine{
 
     //Make sure serial is active during setup
     void establishContact() {
-      while (Serial.available() <= 0) {
-        Serial.print('A');   // send a capital A
+      while (Serial1.available() <= 0) {
+        Serial1.print('A');   // send a capital A
         delay(300);
       }
-      Serial.println(' ');
+      Serial1.println(' ');
     }
 
     //Returns a number based on a normal distrubution to simulate error
@@ -66,9 +66,9 @@ class commRoutine{
     //create objects
     test.init(5000);
 
-    // start serial port at 9600 bps:
-    Serial.begin(9600);
-    while (!Serial) {
+    // start serial port at 115200 bps:
+    Serial1.begin(115200);
+    while (!Serial1) {
       ; // wait for serial port to connect. Needed for native USB port only
     }
     
@@ -79,7 +79,7 @@ class commRoutine{
   void run(){
     if(test.check(true)){
       debugPrint(5, routineName, 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
-      //Serial.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+      //Serial1.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
     }
   };
 };

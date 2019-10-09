@@ -22,8 +22,8 @@ diagnoticsRoutine diagnotics;
 int BatterySensorPin = A0;
 
 //Set output pins
-byte motorOptionPin1 = 7;
-byte motorOptionPin2 = 8;
+byte motorOptionPin1 = 8;
+byte motorOptionPin2 = 9;
 byte motorPWMA = 10;
 byte motorPWMB = 11;
 
