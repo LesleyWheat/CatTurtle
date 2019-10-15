@@ -42,8 +42,8 @@ class inputsRoutine{
   public:
     //public variables
     float batteryVoltage = 0;
-    int rpmA = 0;
-    int rpmB = 0;
+    double rpmA = 0;
+    double rpmB = 0;
 
     //public functions
     void init(int debugPrioritySetting, byte BatterySensorPin, byte motorEncoderA_Pin, byte motorEncoderB_Pin){
@@ -65,23 +65,27 @@ class inputsRoutine{
         //Read inputs and translate into readable format
         batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
       
-        //Serial.println("motorEncoderA_voltage= " + motorEncoderA_voltage);
+        motorEncoderA_SamplePeriodArray [motorEncoderA_SampleArrayindex] = millis()-encoderA_PrevTime;
         if ( encoderA_flag <= 0){
-          encoderA_RPM = 0; 
+          motorEncoderA_SampleArrayindex++;
+          encoderA_RPM = 60.0*1000.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8);
         }else{
-          if (averageArray(motorEncoderA_SamplePeriodArray, encoderSamples) < 1){
+          if (60.0*1000.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8) < 8){
             encoderA_RPM = 0;
           }else{
-            encoderA_RPM = 60.0*1.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8/1000.0);
+            encoderA_RPM = 60.0*1000.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8);
           }
         }
+
+        motorEncoderB_SamplePeriodArray [motorEncoderB_SampleArrayindex] = millis()-encoderB_PrevTime;
         if ( encoderB_flag <= 0){
-          encoderB_RPM = 0; 
+          motorEncoderB_SampleArrayindex++;
+          encoderB_RPM = 60.0*1000/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8);
         }else{
-          if (averageArray(motorEncoderB_SamplePeriodArray, encoderSamples) < 1){
+          if (60.0*1000/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8) < 8){
             encoderB_RPM = 0;
           }else{
-            encoderB_RPM = 60.0*1.0/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8/1000.0);
+            encoderB_RPM = 60.0*1.0*1000/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8);
           }
         }
       
@@ -94,6 +98,9 @@ class inputsRoutine{
           encoderA_flag--;
           encoderB_flag--;
         }
+
+        rpmA = encoderA_RPM;
+        rpmB = encoderB_RPM;
         
       }
       

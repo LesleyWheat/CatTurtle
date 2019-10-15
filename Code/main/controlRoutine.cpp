@@ -1,26 +1,53 @@
-//Control/AI module
+//Control module
 
+//Libraries
 #include "arduino.h"
+#include <AutoPID.h>
+
+//local functions
 #include "realTimer.h"
 #include "loggingFunctions.h"
 
+//pid settings and gains
+#define OUTPUT_MIN 0
+#define OUTPUT_MAX 255
+#define KP 1
+#define KI .001
+#define KD 0
+    
+//Class
 class controlRoutine{
   private:
     //Set private variables
     int debugPrioritySetting;
     float batteryVoltage;
-    int rpmA;
-    int rpmB;
+    double rpmA;
+    double rpmB;
     String routineName = "cont";
+
 
     //Set variables for motor
     realTimer timerRampUp;
     byte left_setPWM;
     byte right_setPWM;
+    int left_setRPM;
+    int right_setRPM;
     byte left_currentPWM;
     byte right_currentPWM;
+
+    double motorA_setRPM =0;
+    double motorB_setRPM =0;
+    double motorA_outPWM =0;
+    double motorB_outPWM =0;
     byte testState = 0;
     realTimer timerTest;
+
+    double temperature, setPoint, outputVal;
+    //Set objects for pid controllers
+    AutoPID *pidA;
+    AutoPID *pidB;
+
+    //Set objects for pid
 
     //Test state machine
     enum state{
@@ -92,6 +119,10 @@ class controlRoutine{
         right_currentPWM = 20;
       }
       
+      //Update PID controllers
+      pidA->run();
+      pidB->run();
+      
       motorOptionPin1_PWM = (int)(left_currentPWM*(255.0/100));
       motorOptionPin2_PWM = (int)(right_currentPWM*(255.0/100));
     };
@@ -137,13 +168,15 @@ class controlRoutine{
     //set public variables
     byte motorOptionPin1_PWM = 0;
     byte motorOptionPin2_PWM = 0;
-
     
     void init(int debugPrioritySetting){
       //Set local variables
       this->debugPrioritySetting=debugPrioritySetting;
   
       //Set starting variables
+      pidA = new AutoPID(&rpmA, &motorA_setRPM, &motorA_outPWM, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD);
+      pidB = new AutoPID(&rpmB, &motorA_setRPM, &motorB_outPWM, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD);
+
   
       //create objects
       timerTest.init(20000);
@@ -151,13 +184,26 @@ class controlRoutine{
     };
 
     //Runs in main loop
-    void run(float batteryVoltage, int rpmA, int rpmB){
+    void run(float batteryVoltage, double rpmA, double rpmB){
       //Read inputs
       this->batteryVoltage=batteryVoltage;
       this->rpmA=rpmA;
       this->rpmB=rpmB;
 
-      runMotor();
-      testStateMachine();
+      //Update state
+      //runMotor();
+      //testStateMachine();
+
+      motorA_setRPM = 20;
+      motorB_setRPM = 30;
+      
+      //Update PID controllers
+      pidA->run();
+      pidB->run();
+
+      debugPrint(5, routineName, 5, String("rpmA: ") + String(rpmA) + String("rpmA set: ") + String(motorA_outPWM));
+
+      motorOptionPin1_PWM = (byte) motorA_outPWM;
+      motorOptionPin2_PWM = (byte) motorB_outPWM;
     };
 };
