@@ -9,6 +9,8 @@ class controlRoutine{
     //Set private variables
     int debugPrioritySetting;
     float batteryVoltage;
+    int rpmA;
+    int rpmB;
     String routineName = "cont";
 
     //Set variables for motor
@@ -29,7 +31,7 @@ class controlRoutine{
     //Plain text settings for speed - needs calibration
     enum speed{
       SPEED_BRAKE = 0,
-      SPEED_VERY_SLOW = 10,
+      SPEED_VERY_SLOW = 20,
       SPEED_SLOW = 25,
       SPEED_NORMAL = 40,
       SPEED_FAST = 60,
@@ -82,9 +84,16 @@ class controlRoutine{
           //debugPrint(5, routineName, 5, String("Right speed running at: ") + String(right_currentPWM));
         };
       };
-
-      motorOptionPin1_PWM = (left_currentPWM*(255/100));
-      motorOptionPin2_PWM = (right_currentPWM*(255/100));
+      if((left_currentPWM < 20)& (left_currentPWM > 10) ){
+        left_currentPWM = 20;
+      }
+      
+      if((right_currentPWM < 20)& (right_currentPWM > 10) ){
+        right_currentPWM = 20;
+      }
+      
+      motorOptionPin1_PWM = (int)(left_currentPWM*(255.0/100));
+      motorOptionPin2_PWM = (int)(right_currentPWM*(255.0/100));
     };
 
     //Set up tests to cycle through modes
@@ -97,27 +106,27 @@ class controlRoutine{
         //Set motor settings
         switch(testState){
           case 0:
-            setMotor(SPEED_BRAKE, STRAIGHT, ACCEL_MIN);
+            setMotor(SPEED_FAST, STRAIGHT, ACCEL_NORMAL);
             break;
           case 1:
-            setMotor(SPEED_VERY_SLOW, STRAIGHT, ACCEL_MIN);
+            setMotor(SPEED_BRAKE, STRAIGHT, ACCEL_NORMAL);
             break;
           case 2:
-            setMotor(SPEED_SLOW, STRAIGHT, ACCEL_SLOW);
+            setMotor(SPEED_FAST, STRAIGHT, ACCEL_NORMAL);
             break;
           case 3:
-            setMotor(SPEED_NORMAL, STRAIGHT, ACCEL_NORMAL);
+            setMotor(SPEED_SLOW, STRAIGHT, ACCEL_NORMAL);
             break;
           case 4:
-            setMotor(SPEED_VERY_SLOW, STRAIGHT, ACCEL_MIN);
+            setMotor(SPEED_SLOW, STRAIGHT, ACCEL_MIN);
             break;
           default:
             setMotor(SPEED_BRAKE, STRAIGHT, ACCEL_MIN);
         };
         
         debugPrint(5, routineName, 5, String("Test state: ") + String(testState));
-        debugPrint(5, routineName, 5, String("Left speed running at: ") + String(motorOptionPin1_PWM));
-        debugPrint(5, routineName, 5, String("Right speed running at: ") + String(motorOptionPin2_PWM));
+        debugPrint(5, routineName, 5, String("Left speed running at: ") + String(motorOptionPin1_PWM/255.0*100));
+        debugPrint(5, routineName, 5, String("Right speed running at: ") + String(motorOptionPin2_PWM/255.0*100));
         debugPrint(5, routineName, 5, String("Left set at running at: ") + String(left_setPWM));
         debugPrint(5, routineName, 5, String("Right set at running at: ") + String(right_setPWM));
       };
@@ -142,9 +151,11 @@ class controlRoutine{
     };
 
     //Runs in main loop
-    void run(float batteryVoltage){
+    void run(float batteryVoltage, int rpmA, int rpmB){
       //Read inputs
       this->batteryVoltage=batteryVoltage;
+      this->rpmA=rpmA;
+      this->rpmB=rpmB;
 
       runMotor();
       testStateMachine();

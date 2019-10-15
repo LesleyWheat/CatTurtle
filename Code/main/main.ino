@@ -4,22 +4,32 @@
 
 //Include functions
 #include "loggingFunctions.h"
+#include "miscFunctions.h"
 #include "realTimer.h"
 
 //Include main routines as objects
+#include "inputsRoutine.cpp"
 #include "controlRoutine.cpp"
 #include "commRoutine.cpp"
 #include "diagnoticsRoutine.cpp"
 
+//define build variables
+#define targetCycleTime 50
 
 //Declare Objects
+inputsRoutine inputs;
 controlRoutine control;
 commRoutine comm;
 diagnoticsRoutine diagnotics;
 
+//
 
 //Set input pins
-int BatterySensorPin = A0;
+byte BatterySensorPin = A5;
+//Left is A
+byte motorEncoderA_Pin = 2;
+//Right is B
+byte motorEncoderB_Pin = 3;
 
 //Set output pins
 byte motorOptionPin1 = 8;
@@ -28,7 +38,6 @@ byte motorPWMA = 10;
 byte motorPWMB = 11;
 
 //global variables for main
-float batteryVoltage = 0;
 byte blinkState = 0;
 
 //gloabl settings variables
@@ -37,19 +46,34 @@ int const debugPrioritySetting = 5;
 //global objects for main
 realTimer blinkTimer;
 
+
 // the setup function runs once when you press reset or power the board
 //Runs only once at setup
 void setup() {
   debugPrint(debugPrioritySetting, "setup", 5, "Starting...");
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
+  
   blinkTimer.init(1000);
   
   //Initalize main routines
+  inputs.init(debugPrioritySetting, BatterySensorPin, motorEncoderA_Pin, motorEncoderB_Pin);
   control.init(debugPrioritySetting);
   comm.init(debugPrioritySetting);
-  diagnotics.init(debugPrioritySetting);
+  diagnotics.init(debugPrioritySetting, targetCycleTime);
   outputSetup();
+
+  //Set pins up
+  pinMode(motorEncoderA_Pin, INPUT_PULLUP);
+  pinMode(motorEncoderB_Pin, INPUT_PULLUP);
+  pinMode(BatterySensorPin, INPUT);
+
+  digitalWrite(motorEncoderA_Pin,HIGH);  // enable pullup resistor
+  digitalWrite(motorEncoderB_Pin,HIGH);  // enable pullup resistor
+
+  //set interupts
+  attachInterrupt(digitalPinToInterrupt(motorEncoderA_Pin), encoderA_InterProxy, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(motorEncoderB_Pin), encoderB_InterProxy, CHANGE);
 
   //Finish setup
   debugPrint(debugPrioritySetting, "setup", 5, "Startup complete");
@@ -78,20 +102,22 @@ void loop() {
   };
 
   // Delay so CPU doesn't run at 100% all the time
-  delay(50);
+  //delay(50);
   
   //Run main routines
-  inputsRead();
-  control.run(batteryVoltage);
+  inputs.run();
+  control.run(inputs.batteryVoltage, inputs.rpmA, inputs.rpmB);
   comm.run();
-  diagnotics.run(batteryVoltage);
+  diagnotics.run(inputs.batteryVoltage);
   outputWrite();
 }
 
-void inputsRead(){  
-  //Read inputs and translate into readable format
-  batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
-  
+void encoderA_InterProxy(){
+  inputs.encoderA();
+}
+
+void encoderB_InterProxy(){
+  inputs.encoderB();
 }
 
 void outputSetup(){
@@ -104,7 +130,6 @@ void outputSetup(){
 
 
 void outputWrite(){
-  
   //Set outputs
   //Motor state
   analogWrite(motorOptionPin1,255);

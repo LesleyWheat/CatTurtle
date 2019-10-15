@@ -1,6 +1,7 @@
 //General global functions
 
 #include "arduino.h"
+#include "miscFunctions.h"
 /* generate a pair of normally distributed random numbers
 * using a Box-Muller transformation. The mean is 0 -- numbers
 * are equally likely to be + or -.  The required stdev is
@@ -41,3 +42,14 @@ double fuzzyNum(double num, double sigma){
   
   return sample;
 }
+
+// Function that return average of an array. 
+
+double averageArray(int a[], int n) { 
+    // Find sum of array element 
+    int sum = 0; 
+    for (int i=0; i<n; i++) 
+       sum += a[i]; 
+  
+    return sum/n; 
+} 
