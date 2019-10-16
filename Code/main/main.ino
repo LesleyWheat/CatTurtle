@@ -112,14 +112,11 @@ void loop() {
   outputWrite();
 }
 
-void encoderA_InterProxy(){
-  inputs.encoderA();
-}
+//Interupts can't directly call object functions but this is a workaround
+void encoderA_InterProxy(){inputs.encoderA();};
+void encoderB_InterProxy(){inputs.encoderB();}
 
-void encoderB_InterProxy(){
-  inputs.encoderB();
-}
-
+//configure outputs
 void outputSetup(){
   //Setup output pins
   pinMode(motorOptionPin1, OUTPUT);
@@ -128,7 +125,7 @@ void outputSetup(){
   pinMode(motorPWMB, OUTPUT);
 }
 
-
+//set outputs from main loop
 void outputWrite(){
   //Set outputs
   //Motor state

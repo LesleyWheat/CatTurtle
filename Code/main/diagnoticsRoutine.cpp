@@ -39,22 +39,6 @@ class diagnoticsRoutine{
       //debugPrint(5, routineName, 5, MEMORY_PRINT_HEAPSIZE);
       //debugPrint(5, routineName, 5, FREERAM_PRINT);
   
-      
-      if ((Serial1.available() > 0) & ( debugPrioritySetting >= 5)){
-        //Serial.println(F("Current state of the memory:"));
-        //Serial.println();
-        /*
-        MEMORY_PRINT_START
-        MEMORY_PRINT_HEAPSTART
-        MEMORY_PRINT_HEAPEND
-        MEMORY_PRINT_STACKSTART
-        MEMORY_PRINT_END
-        MEMORY_PRINT_HEAPSIZE
-        FREERAM_PRINT;
-        */
-        //Serial.println();
-        }
-  
       debugPrint(5, routineName, 5, String("End current state of the memory----------------"));
       };
   

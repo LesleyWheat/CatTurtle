@@ -55,14 +55,14 @@ class controlRoutine{
       TEST = 1
     }; 
 
-    //Plain text settings for speed - needs calibration
+    //Plain text settings for speed - needs more calibration
     enum speed{
       SPEED_BRAKE = 0,
       SPEED_VERY_SLOW = 20,
       SPEED_SLOW = 25,
-      SPEED_NORMAL = 40,
-      SPEED_FAST = 50,
-      SPEED_MAX = 60
+      SPEED_NORMAL = 30,
+      SPEED_FAST = 40,
+      SPEED_MAX = 50
     };
 
     //Plain text settings for direction - needs calibration
@@ -89,16 +89,15 @@ class controlRoutine{
     void setMotor(byte spd, byte dir, int accel){
       //debugPrint(5, routineName, 5, String("Motor set to: ") + String(spd));
       //Accel sets timer change rate
+      //Accel not used at moment, integrate with PID k values later
       
-      //Speed sets motor PWM
-      //Direction sets difference in wheel speed
+      //Speed sets motor PWM based on direction and speed, Direction sets difference in wheel speed
       motorA_setRPM = (spd + (50-dir)*spd/50);
       motorB_setRPM = (spd + (50-(100-dir))*spd/50);
     };
 
     //Set up tests to cycle through modes
     void testStateMachine(){
-      //
       if(timerTest.check(true)){
         //Next state
         testState = ((testState + 1)%5);
@@ -123,7 +122,8 @@ class controlRoutine{
           default:
             setMotor(SPEED_BRAKE, STRAIGHT, ACCEL_MIN);
         };
-        
+
+        //output for reference
         debugPrint(5, routineName, 5, String("Test state: ") + String(testState));
         debugPrint(5, routineName, 5, String("Left speed running at: ") + String(motorOptionPin1_PWM/255.0*100));
         debugPrint(5, routineName, 5, String("Right speed running at: ") + String(motorOptionPin2_PWM/255.0*100));
@@ -143,17 +143,20 @@ class controlRoutine{
       this->debugPrioritySetting=debugPrioritySetting;
   
       //Set starting variables
+
+      //Create PIDs for motors
       pidA = new PID(&rpmA, &motorA_outPWM, &motorA_setRPM, KP, KI, KD, DIRECT);
       pidB = new PID(&rpmB, &motorB_outPWM, &motorB_setRPM, KP, KI, KD, DIRECT);
 
+      //Configure PIDs
       pidA->SetOutputLimits(OUTPUT_MIN, OUTPUT_MAX);
       pidB->SetOutputLimits(OUTPUT_MIN, OUTPUT_MAX);
-
       pidA->SetMode(AUTOMATIC);
       pidB->SetMode(AUTOMATIC);
   
-      //create objects
+      //set test timer to rotate states
       timerTest.init(10000);
+      //set pid update timer, remember rpm only updates every cycle
       pidTimer.init(250);
       
     };

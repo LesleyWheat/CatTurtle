@@ -1,4 +1,6 @@
 //Inputs module
+//read and does prelimp sampling on inputs
+//contains functions for interrupts
 
 #include "arduino.h"
 #include "realTimer.h"
