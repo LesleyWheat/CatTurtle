@@ -41,7 +41,7 @@ byte motorPWMB = 11;
 byte blinkState = 0;
 
 //gloabl settings variables
-int const debugPrioritySetting = 5;
+int const debugPrioritySetting = 4;
 
 //global objects for main
 realTimer blinkTimer;

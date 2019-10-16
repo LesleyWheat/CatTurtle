@@ -18,7 +18,7 @@ class commRoutine{
     void establishContact() {
       contactTimeout.init(60000);
       
-      while ((Serial.available() <= 0) & (contactTimeout.check(true))) {
+      while ((Serial.available() <= 0) & (contactTimeout.check(true) == false)) {
         Serial.print('A');   // send a capital A
         delay(500);
       }
@@ -39,7 +39,7 @@ class commRoutine{
     //create objects
 
     // start bluetooth serial port at 115200 bps:
-    //Serial1.begin(115200);
+    Serial1.begin(115200);
     // start serial port at 9600 bps:
     Serial.begin(9600);
     while (!Serial) {
@@ -54,6 +54,10 @@ class commRoutine{
     if(test.check(true)){
       //debugPrint(5, routineName, 5, String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
       //Serial1.println(String("Fuzztest: ") + String(fuzzyNum(1000, 100)));
+      Serial1.println(String("AT+RSSI"));
+      int incomingByte = Serial1.read();
+      Serial.print("I received: ");
+      Serial.println(incomingByte, DEC);
     }
   };
 };
