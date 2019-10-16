@@ -5,7 +5,7 @@
 #include "loggingFunctions.h"
 #include "miscFunctions.h"
 
-#define encoderSamples 10
+#define encoderSamples 4
 
 class inputsRoutine{
   private:
@@ -26,16 +26,17 @@ class inputsRoutine{
     
     int encoderA_PrevTime = 0;
     int encoderB_PrevTime = 0;
+
+    int encoderA_period = 0;
+    int encoderB_period = 0;
     
     float encoderA_RPM = 0;
     float encoderB_RPM = 0;
     
-    int encoderA_flag = 1;
-    int encoderB_flag = 1;
     int counter =0;
     
     //Objects
-    realTimer encoderFlagResetTimer;
+    
 
     //Private functions
     
@@ -56,7 +57,7 @@ class inputsRoutine{
         //Set starting variables
         
         //Create objects
-        encoderFlagResetTimer.init(1000);
+        
       };
 
     
@@ -66,38 +67,25 @@ class inputsRoutine{
         batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
       
         motorEncoderA_SamplePeriodArray [motorEncoderA_SampleArrayindex] = millis()-encoderA_PrevTime;
-        if ( encoderA_flag <= 0){
-          motorEncoderA_SampleArrayindex++;
-          encoderA_RPM = 60.0*1000.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8);
+        if (averageArray(motorEncoderA_SamplePeriodArray, encoderSamples) < 50){
+          encoderA_RPM = 0;
         }else{
-          if (60.0*1000.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8) < 8){
-            encoderA_RPM = 0;
-          }else{
-            encoderA_RPM = 60.0*1000.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8);
-          }
+          encoderA_RPM = 60.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8.0/1000.0);
         }
+        
 
         motorEncoderB_SamplePeriodArray [motorEncoderB_SampleArrayindex] = millis()-encoderB_PrevTime;
-        if ( encoderB_flag <= 0){
-          motorEncoderB_SampleArrayindex++;
-          encoderB_RPM = 60.0*1000/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8);
+
+        if (averageArray(motorEncoderB_SamplePeriodArray, encoderSamples) < 50){
+          encoderB_RPM = 0;
         }else{
-          if (60.0*1000/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8) < 8){
-            encoderB_RPM = 0;
-          }else{
-            encoderB_RPM = 60.0*1.0*1000/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8);
-          }
+          encoderB_RPM = 60.0/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8.0/1000.0);
         }
       
         if (counter ==0){
           debugPrint(5, routineName, 5, String("encoderA_RPM: ") + String(encoderA_RPM)+String(", encoderB_RPM: ") + String(encoderB_RPM));
         }
         counter = (counter+1)%10;
-      
-        if(encoderFlagResetTimer.check(true)){
-          encoderA_flag--;
-          encoderB_flag--;
-        }
 
         rpmA = encoderA_RPM;
         rpmB = encoderB_RPM;
@@ -106,7 +94,6 @@ class inputsRoutine{
       
       void encoderA(){
         int motorEncoderA_voltage = digitalRead(motorEncoderA_Pin);
-        encoderA_flag = 2;
         
         //debugPrint(5, routineName, 5, String("motorEncoderA triggered: ") + String(motorEncoderA_voltage));
         if(motorEncoderA_voltage == 0){
@@ -120,8 +107,7 @@ class inputsRoutine{
       }
       
       void encoderB(){
-        int motorEncoderB_voltage = 0;
-        encoderB_flag = 2;
+        int motorEncoderB_voltage = digitalRead(motorEncoderB_Pin);
         
         //debugPrint(5, routineName, 5, String("motorEncoderB triggered: ") + String(motorEncoderB_voltage));
         if(motorEncoderB_voltage == 0){

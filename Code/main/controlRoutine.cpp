@@ -12,7 +12,7 @@
 #define OUTPUT_MIN 0
 #define OUTPUT_MAX 255
 #define KP 1
-#define KI .001
+#define KI 1000
 #define KD 0
     
 //Class
@@ -201,7 +201,7 @@ class controlRoutine{
       pidA->run();
       pidB->run();
 
-      debugPrint(5, routineName, 5, String("rpmA: ") + String(rpmA) + String("rpmA set: ") + String(motorA_outPWM));
+      debugPrint(5, routineName, 5, String("rpmA: ") + String(rpmA) + String(" rpmA set: ") + String(motorA_outPWM));
 
       motorOptionPin1_PWM = (byte) motorA_outPWM;
       motorOptionPin2_PWM = (byte) motorB_outPWM;

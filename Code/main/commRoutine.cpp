@@ -18,11 +18,11 @@ class commRoutine{
     void establishContact() {
       contactTimeout.init(60000);
       
-      while ((Serial1.available() <= 0) & (contactTimeout.check(true))) {
-        Serial1.print('A');   // send a capital A
+      while ((Serial.available() <= 0) & (contactTimeout.check(true))) {
+        Serial.print('A');   // send a capital A
         delay(500);
       }
-      Serial1.println(' ');
+      Serial.println(' ');
     }
 
 
@@ -39,12 +39,12 @@ class commRoutine{
     //create objects
 
     // start bluetooth serial port at 115200 bps:
-    Serial1.begin(115200);
+    //Serial1.begin(115200);
     // start serial port at 9600 bps:
-    //Serial.begin(9600);
-    //while (!Serial) {
-      //; // wait for serial port to connect. Needed for native USB port only
-    //}
+    Serial.begin(9600);
+    while (!Serial) {
+      ; // wait for serial port to connect. Needed for native USB port only
+    }
     
     establishContact();  // send a byte to establish contact until receiver responds
   };
