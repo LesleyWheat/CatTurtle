@@ -5,7 +5,7 @@
 #include "loggingFunctions.h"
 #include "miscFunctions.h"
 
-#define encoderSamples 4
+#define encoderSamples 5
 
 class inputsRoutine{
   private:

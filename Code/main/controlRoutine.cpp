@@ -2,18 +2,18 @@
 
 //Libraries
 #include "arduino.h"
-#include <AutoPID.h>
+#include <PID_v1.h>
 
 //local functions
 #include "realTimer.h"
 #include "loggingFunctions.h"
 
 //pid settings and gains
-#define OUTPUT_MIN 0
-#define OUTPUT_MAX 255
-#define KP 1
-#define KI 1000
-#define KD 0
+#define OUTPUT_MIN 30
+#define OUTPUT_MAX 250
+#define KP 0.1
+#define KI 0.2
+#define KD 0.3
     
 //Class
 class controlRoutine{
@@ -42,10 +42,9 @@ class controlRoutine{
     byte testState = 0;
     realTimer timerTest;
 
-    double temperature, setPoint, outputVal;
     //Set objects for pid controllers
-    AutoPID *pidA;
-    AutoPID *pidB;
+    PID *pidA;
+    PID *pidB;
 
     //Set objects for pid
 
@@ -61,8 +60,8 @@ class controlRoutine{
       SPEED_VERY_SLOW = 20,
       SPEED_SLOW = 25,
       SPEED_NORMAL = 40,
-      SPEED_FAST = 60,
-      SPEED_MAX = 100
+      SPEED_FAST = 50,
+      SPEED_MAX = 60
     };
 
     //Plain text settings for direction - needs calibration
@@ -86,45 +85,14 @@ class controlRoutine{
     };
 
     //Set target motor values
-    void setMotor(byte spd, byte dir, int accelTime){
+    void setMotor(byte spd, byte dir, int accel){
       //debugPrint(5, routineName, 5, String("Motor set to: ") + String(spd));
       //Accel sets timer change rate
-      int timerRate = (100/3.0*accelTime);
-      timerRampUp.init(timerRate);
       
       //Speed sets motor PWM
       //Direction sets difference in wheel speed
-      left_setPWM = (spd + (50-dir)*spd/50);
-      right_setPWM = (spd + (50-(100-dir))*spd/50);
-    };
-
-    //Run motor controller to gradually reach target
-    void runMotor(){
-      if(timerRampUp.check(true)){
-        left_currentPWM = left_currentPWM + (left_setPWM - left_currentPWM)/10 ;
-        right_currentPWM = right_currentPWM + (right_setPWM - right_currentPWM)/10 ;
-      
-        if( (abs(left_setPWM-left_currentPWM) < 5) & (left_currentPWM > 5)){
-          //debugPrint(5, routineName, 5, String("Left speed running at: ") + String(left_currentPWM));
-        }
-        if( (abs(right_setPWM-right_currentPWM) < 5) & (right_currentPWM > 5)){
-          //debugPrint(5, routineName, 5, String("Right speed running at: ") + String(right_currentPWM));
-        };
-      };
-      if((left_currentPWM < 20)& (left_currentPWM > 10) ){
-        left_currentPWM = 20;
-      }
-      
-      if((right_currentPWM < 20)& (right_currentPWM > 10) ){
-        right_currentPWM = 20;
-      }
-      
-      //Update PID controllers
-      pidA->run();
-      pidB->run();
-      
-      motorOptionPin1_PWM = (int)(left_currentPWM*(255.0/100));
-      motorOptionPin2_PWM = (int)(right_currentPWM*(255.0/100));
+      motorA_setRPM = (spd + (50-dir)*spd/50);
+      motorB_setRPM = (spd + (50-(100-dir))*spd/50);
     };
 
     //Set up tests to cycle through modes
@@ -174,12 +142,17 @@ class controlRoutine{
       this->debugPrioritySetting=debugPrioritySetting;
   
       //Set starting variables
-      pidA = new AutoPID(&rpmA, &motorA_setRPM, &motorA_outPWM, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD);
-      pidB = new AutoPID(&rpmB, &motorA_setRPM, &motorB_outPWM, OUTPUT_MIN, OUTPUT_MAX, KP, KI, KD);
+      pidA = new PID(&rpmA, &motorA_outPWM, &motorA_setRPM, KP, KI, KD, DIRECT);
+      pidB = new PID(&rpmB, &motorB_outPWM, &motorB_setRPM, KP, KI, KD, DIRECT);
 
+      pidA->SetOutputLimits(OUTPUT_MIN, OUTPUT_MAX);
+      pidB->SetOutputLimits(OUTPUT_MIN, OUTPUT_MAX);
+
+      pidA->SetMode(AUTOMATIC);
+      pidB->SetMode(AUTOMATIC);
   
       //create objects
-      timerTest.init(20000);
+      timerTest.init(10000);
       
     };
 
@@ -194,14 +167,19 @@ class controlRoutine{
       //runMotor();
       //testStateMachine();
 
-      motorA_setRPM = 20;
-      motorB_setRPM = 30;
+      setMotor(SPEED_NORMAL, LEFT_SLIGHT, ACCEL_NORMAL);
+
+      if(motorA_setRPM > 30){pidA->SetOutputLimits(40, OUTPUT_MAX);}
+      else{pidA->SetOutputLimits(OUTPUT_MIN, 100);}
+
+      if(motorB_setRPM > 30){pidB->SetOutputLimits(40, OUTPUT_MAX);}
+      else{pidB->SetOutputLimits(OUTPUT_MIN, 100);}
       
       //Update PID controllers
-      pidA->run();
-      pidB->run();
+      pidA->Compute();
+      pidB->Compute();
 
-      debugPrint(5, routineName, 5, String("rpmA: ") + String(rpmA) + String(" rpmA set: ") + String(motorA_outPWM));
+      //debugPrint(5, routineName, 5, String("rpmA: ") + String(rpmA) + String(" rpmA_out: ") + String(motorA_outPWM)+ String(" rpmA_set: ") + String(motorA_setRPM));
 
       motorOptionPin1_PWM = (byte) motorA_outPWM;
       motorOptionPin2_PWM = (byte) motorB_outPWM;
