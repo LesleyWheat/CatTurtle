@@ -108,7 +108,7 @@ void loop() {
   inputs.run();
   control.run(inputs.batteryVoltage, inputs.rpmA, inputs.rpmB);
   comm.run();
-  diagnotics.run(inputs.batteryVoltage);
+  diagnotics.run(inputs.batteryVoltage, inputs.rpmA, inputs.rpmB);
   outputWrite();
 }
 
@@ -138,6 +138,5 @@ void outputWrite(){
   //Motor PWM
   analogWrite(motorPWMA,control.motorOptionPin1_PWM);
   analogWrite(motorPWMB,control.motorOptionPin2_PWM);
-
   
 }

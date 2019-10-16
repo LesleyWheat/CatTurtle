@@ -11,9 +11,9 @@
 //pid settings and gains
 #define OUTPUT_MIN 30
 #define OUTPUT_MAX 250
-#define KP 0.1
-#define KI 0.2
-#define KD 0.3
+#define KP 1.5
+#define KI 0.7
+#define KD 0.1
     
 //Class
 class controlRoutine{
@@ -41,6 +41,7 @@ class controlRoutine{
     double motorB_outPWM =0;
     byte testState = 0;
     realTimer timerTest;
+    realTimer pidTimer;
 
     //Set objects for pid controllers
     PID *pidA;
@@ -153,6 +154,7 @@ class controlRoutine{
   
       //create objects
       timerTest.init(10000);
+      pidTimer.init(250);
       
     };
 
@@ -176,10 +178,13 @@ class controlRoutine{
       else{pidB->SetOutputLimits(OUTPUT_MIN, 100);}
       
       //Update PID controllers
-      pidA->Compute();
-      pidB->Compute();
-
+      if(pidTimer.check(true)){
+        pidA->Compute();
+        pidB->Compute();
+      }
+      
       //debugPrint(5, routineName, 5, String("rpmA: ") + String(rpmA) + String(" rpmA_out: ") + String(motorA_outPWM)+ String(" rpmA_set: ") + String(motorA_setRPM));
+      //debugPrint(5, routineName, 5, String("rpmB: ") + String(rpmB) + String(" rpmB_out: ") + String(motorB_outPWM)+ String(" rpmB_set: ") + String(motorB_setRPM));
 
       motorOptionPin1_PWM = (byte) motorA_outPWM;
       motorOptionPin2_PWM = (byte) motorB_outPWM;

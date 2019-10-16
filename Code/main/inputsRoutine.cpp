@@ -5,7 +5,7 @@
 #include "loggingFunctions.h"
 #include "miscFunctions.h"
 
-#define encoderSamples 5
+#define encoderSamples 4
 
 class inputsRoutine{
   private:
@@ -66,24 +66,34 @@ class inputsRoutine{
         //Read inputs and translate into readable format
         batteryVoltage = analogRead(BatterySensorPin)* (5.0 / 1023.0);
       
-        motorEncoderA_SamplePeriodArray [motorEncoderA_SampleArrayindex] = millis()-encoderA_PrevTime;
-        if (averageArray(motorEncoderA_SamplePeriodArray, encoderSamples) < 50){
+        //motorEncoderA_SamplePeriodArray [motorEncoderA_SampleArrayindex] = millis()-encoderA_PrevTime;
+        if (averageArray(motorEncoderA_SamplePeriodArray, encoderSamples) < 10){
           encoderA_RPM = 0;
         }else{
-          encoderA_RPM = 60.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8.0/1000.0);
+          if (((millis()-encoderA_PrevTime) > (40 + motorEncoderA_SamplePeriodArray [ motorEncoderA_SampleArrayindex ])) & 
+                      (motorEncoderA_SamplePeriodArray [ motorEncoderA_SampleArrayindex ] > 500)) {
+            encoderA_RPM = 60.0/((millis()-encoderA_PrevTime+ averageArray(motorEncoderA_SamplePeriodArray, encoderSamples))*8.0*2/1000.0);
+          }else{
+            encoderA_RPM = 60.0/(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)*8.0/1000.0);
+          }
         }
         
 
-        motorEncoderB_SamplePeriodArray [motorEncoderB_SampleArrayindex] = millis()-encoderB_PrevTime;
+        //motorEncoderB_SamplePeriodArray [motorEncoderB_SampleArrayindex] = millis()-encoderB_PrevTime;
 
-        if (averageArray(motorEncoderB_SamplePeriodArray, encoderSamples) < 50){
+        if (averageArray(motorEncoderB_SamplePeriodArray, encoderSamples) < 10){
           encoderB_RPM = 0;
         }else{
-          encoderB_RPM = 60.0/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8.0/1000.0);
+          if (((millis()-encoderB_PrevTime) > (40 + motorEncoderB_SamplePeriodArray [ motorEncoderB_SampleArrayindex ])) & 
+                      (motorEncoderB_SamplePeriodArray [ motorEncoderB_SampleArrayindex ] > 500)) {
+            encoderB_RPM = 60.0/((millis()-encoderB_PrevTime+ averageArray(motorEncoderB_SamplePeriodArray, encoderSamples))*8.0*2/1000.0);
+          }else{
+            encoderB_RPM = 60.0/(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)*8.0/1000.0);
+          }
         }
       
         if (counter ==0){
-          debugPrint(5, routineName, 5, String("encoderA_RPM: ") + String(encoderA_RPM)+String(", encoderB_RPM: ") + String(encoderB_RPM));
+          //debugPrint(5, routineName, 5, String("encoderA_RPM: ") + String(encoderA_RPM)+String(", encoderB_RPM: ") + String(encoderB_RPM));
         }
         counter = (counter+1)%10;
 
@@ -101,7 +111,7 @@ class inputsRoutine{
           encoderA_PrevTime = millis();
           motorEncoderA_SampleArrayindex = (motorEncoderA_SampleArrayindex +1)%encoderSamples;
           if (motorEncoderA_SampleArrayindex == 0){
-            debugPrint(5, routineName, 5, String("average encode A period: ") + String(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)));
+            //debugPrint(5, routineName, 5, String("encode A period: ") + String(motorEncoderA_SamplePeriodArray [motorEncoderA_SampleArrayindex]));
           }
         }
       }
@@ -115,7 +125,8 @@ class inputsRoutine{
           encoderB_PrevTime = millis();
           motorEncoderB_SampleArrayindex = (motorEncoderB_SampleArrayindex +1)%encoderSamples;
           if (motorEncoderB_SampleArrayindex == 0){
-            debugPrint(5, routineName, 5, String("average encode A period: ") + String(averageArray(motorEncoderA_SamplePeriodArray, encoderSamples)));
+            //debugPrint(5, routineName, 5, String("average encode B period: ") + String(averageArray(motorEncoderB_SamplePeriodArray, encoderSamples)));
+            //debugPrint(5, routineName, 5, String("encode B period: ") + String(motorEncoderB_SamplePeriodArray [motorEncoderB_SampleArrayindex]));
           }
         }
       }

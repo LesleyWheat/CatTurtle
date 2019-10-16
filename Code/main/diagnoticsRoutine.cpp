@@ -115,7 +115,7 @@ class diagnoticsRoutine{
     };
 
     //runs in main loop
-    void run(float batteryVoltage){
+    void run(float batteryVoltage, double rpmA, double rpmB){
       //Read inputs
       this->batteryVoltage=batteryVoltage;
   
